@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#FFD400">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Iron Arcade">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Iron Arcade</title>
+<style>
+@font-face{font-family:'Pixel';src:url('pixel.woff2') format('woff2');font-display:swap}
+@font-face{font-family:'VT';src:url('vt323.woff2') format('woff2');font-display:swap}
+
+:root{
+  --y:#FFD400; --y-hi:#FFEC78; --y-lo:#D9A800; --y-soft:#FFF4B3;
+  --ink:#111111; --paper:#FFFBE6; --white:#FFFFFF; --ok:#111;
+  --pix:'Pixel','Courier New',monospace; --vt:'VT','Courier New',monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(var(--y-soft) 2px,transparent 2px),
+    linear-gradient(90deg,var(--y-soft) 2px,transparent 2px);
+  background-size:32px 32px;
+  color:var(--ink);font-family:var(--vt);font-size:22px;line-height:1.1;
+  padding-bottom:calc(96px + env(safe-area-inset-bottom));
+  -webkit-user-select:none;user-select:none;overscroll-behavior-y:none;
+}
+input{-webkit-user-select:text;user-select:text}
+
+/* ---------- header ---------- */
+header{
+  background:var(--y);border-bottom:4px solid var(--ink);
+  padding:calc(14px + env(safe-area-inset-top)) 16px 14px;
+  position:sticky;top:0;z-index:20;
+  box-shadow:0 5px 0 var(--ink);
+  background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.25) 0 8px,transparent 8px 16px);
+}
+.logo{
+  font-family:var(--pix);font-size:22px;color:var(--white);margin:0;letter-spacing:1px;
+  text-shadow:1px 1px 0 var(--ink),2px 2px 0 var(--ink),3px 3px 0 var(--ink),4px 4px 0 var(--ink),5px 5px 0 var(--ink),6px 6px 0 var(--ink);
+}
+.sub{font-size:20px;margin-top:10px;letter-spacing:1px;display:flex;justify-content:space-between;gap:8px}
+.blink{animation:blink 1s steps(2,start) infinite}
+@keyframes blink{to{visibility:hidden}}
+
+main{padding:20px 16px 8px;max-width:560px;margin:0 auto}
+h2{
+  font-family:var(--pix);font-size:13px;line-height:1.6;margin:6px 0 16px;color:var(--ink);
+  text-shadow:2px 2px 0 var(--y);
+}
+
+/* ---------- 3D buttons ---------- */
+.btn{
+  font-family:var(--pix);font-size:12px;color:var(--ink);text-transform:uppercase;
+  background:var(--y);border:3px solid var(--ink);border-radius:6px;
+  padding:13px 14px;cursor:pointer;position:relative;
+  box-shadow:inset 0 4px 0 var(--y-hi),inset 0 -4px 0 var(--y-lo),0 6px 0 var(--ink);
+  transition:transform .06s,box-shadow .06s;
+}
+.btn:active{transform:translateY(5px);box-shadow:inset 0 4px 0 var(--y-hi),inset 0 -4px 0 var(--y-lo),0 1px 0 var(--ink)}
+.btn.white{background:var(--white);box-shadow:inset 0 4px 0 #fff,inset 0 -4px 0 #DDD,0 6px 0 var(--ink)}
+.btn.white:active{box-shadow:inset 0 4px 0 #fff,inset 0 -4px 0 #DDD,0 1px 0 var(--ink)}
+.btn.block{display:block;width:100%}
+.btn.sm{font-size:10px;padding:9px 10px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>*{flex:1}
+
+/* ---------- cards ---------- */
+.card{
+  background:var(--white);border:3px solid var(--ink);border-radius:8px;
+  box-shadow:6px 6px 0 var(--ink);margin:0 0 24px;overflow:hidden;position:relative;
+}
+.card.done{background:var(--y-soft)}
+.card .hd{
+  background:var(--y);border-bottom:3px solid var(--ink);padding:10px 12px;
+  display:flex;align-items:center;gap:10px;
+}
+.card .bd{padding:12px}
+.badge{
+  font-family:var(--pix);font-size:16px;background:var(--ink);color:var(--y);
+  min-width:44px;height:44px;display:grid;place-items:center;border-radius:4px;
+  box-shadow:3px 3px 0 var(--white);
+}
+.hd .t{font-family:var(--pix);font-size:11px;line-height:1.5}
+.hd .t small{display:block;font-family:var(--vt);font-size:20px;margin-top:4px;opacity:.85}
+.tag{
+  display:inline-block;font-family:var(--pix);font-size:9px;background:var(--ink);color:var(--y);
+  padding:5px 7px;border-radius:3px;margin-left:auto;white-space:nowrap
+}
+.tag.fin{background:var(--white);color:var(--ink);border:2px solid var(--ink);box-shadow:2px 2px 0 var(--ink)}
+
+/* day cards on home */
+.day{display:block;width:100%;text-align:left;padding:0;background:none;border:0;font:inherit;color:inherit;cursor:pointer}
+.day .card{transition:transform .06s,box-shadow .06s;margin-bottom:26px}
+.day:active .card{transform:translate(5px,5px);box-shadow:1px 1px 0 var(--ink)}
+.day .big{
+  font-family:var(--pix);font-size:34px;color:var(--white);
+  text-shadow:1px 1px 0 var(--ink),2px 2px 0 var(--ink),3px 3px 0 var(--ink),4px 4px 0 var(--ink),5px 5px 0 var(--ink);
+  width:64px;text-align:center
+}
+.day .meta{font-size:21px;margin-top:6px}
+.bar{height:18px;border:3px solid var(--ink);background:var(--white);border-radius:4px;overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;background:repeating-linear-gradient(90deg,var(--y) 0 10px,var(--y-lo) 10px 12px);transition:width .3s}
+
+/* hazard banner */
+.warn{
+  border:3px solid var(--ink);border-radius:6px;background:var(--white);margin:0 0 22px;
+  box-shadow:4px 4px 0 var(--ink);
+}
+.warn::before{content:"";display:block;height:12px;background:repeating-linear-gradient(135deg,var(--ink) 0 10px,var(--y) 10px 20px);border-bottom:3px solid var(--ink)}
+.warn p{margin:0;padding:10px 12px;font-size:21px}
+.warn b{font-family:var(--pix);font-size:10px}
+
+/* ---------- exercise ---------- */
+.target{font-family:var(--pix);font-size:11px;background:var(--y);border:2px solid var(--ink);padding:6px 8px;border-radius:3px;display:inline-block;box-shadow:2px 2px 0 var(--ink)}
+.tip{font-size:21px;margin:10px 0 0;opacity:.9}
+.last{font-size:20px;margin:10px 0 0;padding:6px 8px;background:var(--paper);border:2px dashed var(--ink);border-radius:4px}
+.fields{display:grid;grid-template-columns:90px 1fr;gap:10px;margin-top:12px}
+.fields .full{grid-column:1/-1}
+label{font-family:var(--pix);font-size:8px;display:block;margin-bottom:6px}
+input[type=text],input[type=number],input[inputmode]{
+  width:100%;font-family:var(--vt);font-size:24px;padding:8px 10px;border:3px solid var(--ink);border-radius:4px;
+  background:var(--white);color:var(--ink);box-shadow:inset 3px 3px 0 #E8E8E8;outline:none;
+}
+input:focus{background:var(--y-soft)}
+.save{margin-top:14px}
+
+.pr{
+  font-family:var(--pix);font-size:9px;background:var(--ink);color:var(--y);padding:5px 7px;border-radius:3px;
+  animation:blink .6s steps(2,start) 6
+}
+
+/* ---------- nav ---------- */
+nav{
+  position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--ink);
+  padding:12px 12px calc(12px + env(safe-area-inset-bottom));display:flex;gap:10px;
+  border-top:4px solid var(--y);
+}
+nav .btn{flex:1;font-size:9px;padding:12px 4px}
+nav .btn.on{background:var(--white);box-shadow:inset 0 4px 0 #fff,inset 0 -4px 0 #DDD,0 6px 0 var(--y)}
+nav .btn:not(.on){box-shadow:inset 0 4px 0 var(--y-hi),inset 0 -4px 0 var(--y-lo),0 6px 0 #000}
+
+/* progress */
+details{margin:0 0 18px;border:3px solid var(--ink);border-radius:6px;background:var(--white);box-shadow:4px 4px 0 var(--ink)}
+summary{list-style:none;padding:12px;cursor:pointer;display:flex;gap:10px;align-items:center;font-size:22px}
+summary::-webkit-details-marker{display:none}
+summary .n{font-family:var(--pix);font-size:9px;margin-left:auto;background:var(--y);border:2px solid var(--ink);padding:5px 7px;border-radius:3px}
+details[open] summary{background:var(--y);border-bottom:3px solid var(--ink)}
+details .in{padding:12px}
+.hist{margin:10px 0 0;padding:0;list-style:none}
+.hist li{padding:8px 0;border-bottom:2px dashed #bbb;font-size:21px}
+.hist li:last-child{border:0}
+.hist b{font-family:var(--pix);font-size:9px;margin-right:8px;background:var(--ink);color:var(--y);padding:3px 5px;border-radius:2px}
+.chart{display:flex;align-items:flex-end;gap:6px;height:90px;border-bottom:3px solid var(--ink);padding:4px 2px 0}
+.chart i{flex:1;min-width:8px;background:var(--y);border:2px solid var(--ink);border-bottom:0;box-shadow:inset 3px 0 0 var(--y-hi);position:relative}
+.chart i:last-child{background:var(--ink);box-shadow:none}
+.empty{text-align:center;font-size:22px;padding:16px;border:3px dashed var(--ink);border-radius:6px;background:var(--white)}
+
+/* toast */
+#toast{
+  position:fixed;left:50%;top:calc(90px + env(safe-area-inset-top));transform:translate(-50%,-30px);opacity:0;pointer-events:none;z-index:50;
+  font-family:var(--pix);font-size:11px;background:var(--ink);color:var(--y);padding:14px 16px;border:3px solid var(--y);border-radius:6px;
+  box-shadow:5px 5px 0 var(--y-lo);transition:.18s;text-align:center;line-height:1.6;max-width:90vw
+}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.hidden{display:none!important}
+.mini{font-size:20px;margin:6px 0 16px;opacity:.9}
+</style>
+</head>
+<body>
+
+<header>
+  <h1 class="logo">IRON ARCADE</h1>
+  <div class="sub"><span>PLAN 4 DÍAS · HOMBRO SAFE</span><span class="blink">▶ START</span></div>
+</header>
+
+<main id="app"></main>
+
+<nav>
+  <button class="btn" data-nav="home">ENTRENAR</button>
+  <button class="btn" data-nav="progress">PROGRESO</button>
+  <button class="btn" data-nav="body">PESO · DATOS</button>
+</nav>
+
+<div id="toast"></div>
+<input type="file" id="importFile" accept="application/json,.json" class="hidden">
+
+<script>
+/* =========================================================
+   PLAN
+   ========================================================= */
+const PLAN = {
+  A: { title:'POSTERIOR + EMPUJE', sub:'Glúteo · isquios · pecho', items:[
+    {n:'Hip thrust con barra', t:'3x10', tip:'Pausa 1" arriba. Subí cuando completes las 3 series.'},
+    {n:'Press de banca (mancuernas o barra, banco plano)', t:'3x10', tip:'Usá lo que esté libre. Agarre neutro si es con mancuernas. Bajá controlado, sin llevar codos por detrás del torso.'},
+    {n:'Peso muerto convencional con barra', t:'3x8', tip:'Espalda neutra, barra pegada al cuerpo. Sin tirones.'},
+    {n:'Remo en máquina con apoyo de pecho', t:'3x12', tip:'Llevá los codos atrás sin encogerte de hombros.'},
+    {n:'Curl nórdico excéntrico', t:'3x5-6', tip:'Bajá lento; ayudate con las manos para volver. Con banda si hace falta.'},
+    {n:'Plancha lateral (o Pallof press si hay polea/banda)', t:'3x30" c/l', tip:'Alternativa libre de equipo: plancha lateral. Si la polea está libre: Pallof press 3x12 c/l.'},
+    {n:'Band pull-apart', t:'3x20', tip:'Estabilización del hombro. Banda liviana, brazos a la altura del pecho.'}
+  ]},
+  B: { title:'PIERNAS + TIRÓN', sub:'Cuádriceps · espalda · brazos', finisher:{
+      n:'FINISHER — AMRAP 6 min', t:'6 min',
+      tip:'10 KB swings + 8 burpees (sin saltar con brazos arriba) + 40 saltos de soga. Anotá rondas completas.'
+    }, items:[
+    {n:'Hack squat', t:'3x12', tip:'Rango completo y controlado.'},
+    {n:'Remo Pendlay', t:'3x8', tip:'Barra desde el suelo, torso paralelo, explosivo al subir.'},
+    {n:'Zancada reversa con mancuernas', t:'3x10', tip:'Torso erguido, paso largo.'},
+    {n:'Peck deck inverso liviano', t:'3x15', tip:'Manos a la altura del pecho, rango corto. Sin peso excesivo.'},
+    {n:'Curl barra Z con pausa 2"', t:'3x10', tip:'Pausa de 2" a mitad del recorrido.'},
+    {n:'Rotación externa con banda', t:'3x15 c/l', tip:'Codo pegado al costado, a 90°. Lento y sin dolor.'}
+  ]},
+  C: { title:'SUPERIOR SIN OVERHEAD', sub:'Pecho · espalda · estabilidad', items:[
+    {n:'Press inclinado con mancuernas (30°, agarre neutro)', t:'3x10', tip:'Inclinación baja (30°). Nada de subir más.'},
+    {n:'Pulldown brazos rectos (barra ancha, polea alta)', t:'3x12', tip:'De frente a la polea, manos más abiertas que los hombros. Empezá con la barra a la altura de la frente y llevala a la cadera con brazos rectos.'},
+    {n:'Remo a 1 mano en polea o máquina', t:'3x10 c/l', tip:'Pecho firme, sin rotar el torso.'},
+    {n:'Press en cable unilateral (a la altura del pecho)', t:'3x12 c/l', tip:'Codo a 45° del torso.'},
+    {n:'Tríceps en cuerda', t:'3x15', tip:'Codos pegados, separá la cuerda al final.'},
+    {n:'Curl martillo', t:'3x12', tip:'Sin balanceo.'},
+    {n:'T prono liviano (mancuernas)', t:'3x12', tip:'Boca abajo en banco inclinado o suelo. Peso muy liviano.'},
+    {n:'Bottoms-up KB a la altura del pecho', t:'3x20" c/l', tip:'KB invertida, codo flexionado. Estabilidad pura.'}
+  ]},
+  D: { title:'POTENCIA + ESTABILIDAD', sub:'Explosivo · piernas · core', finisher:{
+      n:'FINISHER — CIRCUITO (1 ronda)', t:'tiempo',
+      tip:'15 burpees (sin saltar con brazos arriba) + 20 KB swings + 10 remos TRX + 12 box jumps (bajando con un paso) + 60 saltos de soga (o 40 mountain climbers). Anotá el tiempo total.'
+    }, items:[
+    {n:'KB swing pesado', t:'4x10', tip:'Bisagra de cadera. La KB llega hasta el pecho, no más arriba.'},
+    {n:'Half Turkish get-up (hasta el codo o la mano)', t:'3x3 c/l', tip:'Sin llegar a overhead. Mirá la KB; control total.'},
+    {n:'Curl femoral en máquina', t:'3x12', tip:'Bajada lenta (3").'},
+    {n:'Box jump con pausa 2"', t:'4x5', tip:'Aterrizaje suave; bajá con un paso.'},
+    {n:'Low row en máquina', t:'3x10', tip:'Escápulas atrás y abajo.'},
+    {n:'Farmer o suitcase carry', t:'3x30 m', tip:'Torso firme, hombros abajo. Suitcase = una sola mano.'}
+  ]}
+};
+const DAYS = Object.keys(PLAN);
+const FKEY = d => d+'|FINISHER';
+const key = (d,n) => d+'|'+n;
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const STORE = 'iron_arcade_v1';
+let S = load();
+let view = {name:'home', day:null};
+
+function load(){
+  try{ const r = JSON.parse(localStorage.getItem(STORE)); if(r && r.cargas) return r; }catch(e){}
+  return {peso:[], cargas:{}};
+}
+function save(){ try{ localStorage.setItem(STORE, JSON.stringify(S)); }catch(e){ toast('NO SE PUDO GUARDAR<br>ESPACIO LLENO'); } }
+function today(){ const t=new Date(); return t.getDate()+'/'+(t.getMonth()+1)+'/'+String(t.getFullYear()).slice(2); }
+function todayLong(){ const t=new Date(); return t.getDate()+'/'+(t.getMonth()+1)+'/'+t.getFullYear(); }
+function isoDate(){ const t=new Date(); return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0'); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function kgOf(v){ const m=String(v||'').match(/(\d+(?:[.,]\d+)?)\s*kg/i); return m?parseFloat(m[1].replace(',','.')):null; }
+function hist(k){ return S.cargas[k]||[]; }
+function todayEntry(k){ return hist(k).find(e=>e.d===today()); }
+function lastBefore(k){ const h=hist(k).filter(e=>e.d!==today()); return h.length?h[h.length-1]:null; }
+function shortD(d){ return d.split('/').slice(0,2).join('/'); }
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+const app = document.getElementById('app');
+
+function render(){
+  document.querySelectorAll('nav .btn').forEach(b=>{
+    const on = (view.name==='day'?'home':view.name)===b.dataset.nav;
+    b.classList.toggle('on', on);
+  });
+  if(view.name==='home') app.innerHTML = vHome();
+  else if(view.name==='day') app.innerHTML = vDay(view.day);
+  else if(view.name==='progress') app.innerHTML = vProgress();
+  else app.innerHTML = vBody();
+}
+
+function dayProgress(d){
+  const P = PLAN[d];
+  const keys = P.items.map(i=>key(d,i.n)); if(P.finisher) keys.push(FKEY(d));
+  const done = keys.filter(k=>todayEntry(k)).length;
+  return {done, total:keys.length};
+}
+function lastDone(d){
+  const P=PLAN[d]; let best=null;
+  const keys = P.items.map(i=>key(d,i.n)); if(P.finisher) keys.push(FKEY(d));
+  keys.forEach(k=>{ const h=hist(k); if(h.length) best=h[h.length-1].d; });
+  return best;
+}
+
+function vHome(){
+  let h = `<h2>▶ ELEGÍ TU RUTINA</h2>
+  <div class="mini">4 días a la semana. Sin press por encima de la cabeza.</div>`;
+  DAYS.forEach(d=>{
+    const P=PLAN[d], p=dayProgress(d), ld=lastDone(d);
+    h += `<button class="day" data-act="openDay" data-day="${d}">
+      <div class="card"><div class="hd">
+        <div class="big">${d}</div>
+        <div class="t">${esc(P.title)}<small>${esc(P.sub)}</small></div>
+        ${P.finisher?'<span class="tag fin">+FINISHER</span>':''}
+      </div><div class="bd">
+        <div class="meta">${P.items.length} ejercicios${ld?' · última vez: '+esc(shortD(ld)):' · sin registros'}</div>
+        <div class="bar"><i style="width:${p.total?Math.round(p.done/p.total*100):0}%"></i></div>
+        <div class="meta" style="margin-top:8px">HOY: ${p.done}/${p.total}</div>
+      </div></div></button>`;
+  });
+  return h;
+}
+
+function exCard(d, it, idx, isFin){
+  const k = isFin ? FKEY(d) : key(d,it.n);
+  const te = todayEntry(k), lb = lastBefore(k);
+  const kgVal = te && te.kg!=null ? te.kg : '';
+  const rVal = te ? (te.r!=null?te.r:(te.kg==null?te.v:'')) : '';
+  const nVal = te && te.n ? te.n : '';
+  const id = 'f'+idx;
+  const fields = isFin
+    ? `<div class="fields"><div class="full"><label>RESULTADO (RONDAS / TIEMPO)</label>
+         <input type="text" id="${id}r" value="${esc(rVal)}" placeholder="ej: 5 rondas o 11:20" autocomplete="off"></div>
+       <div class="full"><label>NOTA</label><input type="text" id="${id}n" value="${esc(nVal)}" placeholder="opcional" autocomplete="off"></div></div>`
+    : `<div class="fields"><div><label>KG</label>
+         <input type="text" inputmode="decimal" id="${id}k" value="${esc(kgVal)}" placeholder="0" autocomplete="off"></div>
+       <div><label>REPS (EJ: 10-10-10)</label>
+         <input type="text" id="${id}r" value="${esc(rVal)}" placeholder="10-10-10" autocomplete="off"></div>
+       <div class="full"><label>NOTA</label><input type="text" id="${id}n" value="${esc(nVal)}" placeholder="opcional (cómo se sintió)" autocomplete="off"></div></div>`;
+  return `<div class="card ${te?'done':''}">
+    <div class="hd"><div class="badge">${isFin?'★':idx+1}</div>
+      <div class="t">${esc(it.n)}</div></div>
+    <div class="bd">
+      <span class="target">${esc(it.t)}</span>
+      ${te?'<span class="tag" style="margin-left:8px">✔ HECHO HOY</span>':''}
+      <p class="tip">${esc(it.tip)}</p>
+      ${lb?`<div class="last">ÚLTIMA (${esc(shortD(lb.d))}): ${esc(lb.v)}</div>`:`<div class="last">PRIMERA VEZ — ¡FIJÁ TU BASE!</div>`}
+      ${fields}
+      <button class="btn block save" data-act="saveEx" data-day="${d}" data-key="${esc(k)}" data-id="${id}" data-fin="${isFin?1:0}">${te?'ACTUALIZAR':'GUARDAR'}</button>
+    </div></div>`;
+}
+
+function vDay(d){
+  const P=PLAN[d], p=dayProgress(d);
+  let h = `<button class="btn white sm" data-act="home" style="margin-bottom:18px">◀ VOLVER</button>
+    <h2>DÍA ${d} · ${esc(P.title)}</h2>
+    <div class="warn"><p><b>REGLA DE ORO</b><br>Dolor de hombro máx. 0–3/10 y sin molestia al día siguiente. Si algo molesta, saltalo o bajá el peso.</p></div>
+    <div class="bar" style="margin:0 0 22px"><i style="width:${p.total?Math.round(p.done/p.total*100):0}%"></i></div>`;
+  P.items.forEach((it,i)=>{ h += exCard(d,it,i,false); });
+  if(P.finisher) h += exCard(d,P.finisher,P.items.length,true);
+  h += `<p class="mini">Progresión: cuando completes todas las reps en las 3 series, subí 2.5–5 kg la próxima vez. Cada 3 semanas, una semana de descarga (70% de la carga).</p>`;
+  return h;
+}
+
+function vProgress(){
+  let h = `<h2>▶ TU PROGRESO</h2>`;
+  let any=false;
+  DAYS.forEach(d=>{
+    const P=PLAN[d];
+    const list = P.items.map(i=>({k:key(d,i.n),n:i.n}));
+    if(P.finisher) list.push({k:FKEY(d),n:P.finisher.n});
+    const withData = list.filter(x=>hist(x.k).length);
+    if(!withData.length) return;
+    any=true;
+    h += `<h2 style="font-size:11px;margin-top:22px">DÍA ${d} · ${esc(P.title)}</h2>`;
+    withData.forEach(x=>{
+      const H=hist(x.k);
+      const vals=H.map(e=>kgOf(e.v)).filter(v=>v!=null);
+      const mx=Math.max(...vals,1);
+      const bars = H.filter(e=>kgOf(e.v)!=null).slice(-12).map(e=>`<i title="${esc(e.v)}" style="height:${Math.max(10,Math.round(kgOf(e.v)/mx*100))}%"></i>`).join('');
+      h += `<details><summary><span>${esc(x.n)}</span><span class="n">${H.length}x</span></summary><div class="in">
+        ${bars?`<div class="chart">${bars}</div><div class="mini">Barras = kg (últimas ${Math.min(12,H.filter(e=>kgOf(e.v)!=null).length)} sesiones)</div>`:''}
+        <ul class="hist">${H.slice().reverse().map(e=>`<li><b>${esc(e.d)}</b>${esc(e.v)}</li>`).join('')}</ul>
+      </div></details>`;
+    });
+  });
+  if(!any) h += `<div class="empty">TODAVÍA NO HAY REGISTROS.<br><br>Entrená, guardá tus cargas y acá vas a ver tu progreso.</div>`;
+  return h;
+}
+
+function vBody(){
+  const W = S.peso||[];
+  const last = W.length?W[W.length-1]:null;
+  const vals=W.slice(-12).map(w=>w.v);
+  const mn=Math.min(...vals), mx=Math.max(...vals);
+  const bars=vals.map(v=>`<i title="${v} kg" style="height:${mx===mn?60:Math.round(20+(v-mn)/(mx-mn)*80)}%"></i>`).join('');
+  return `<h2>▶ PESO CORPORAL</h2>
+    <div class="card"><div class="bd">
+      ${last?`<div class="meta" style="font-size:24px;margin-bottom:10px">ÚLTIMO: <b>${esc(last.v)} kg</b> (${esc(last.d)})</div>`:''}
+      ${bars?`<div class="chart" style="margin-bottom:14px">${bars}</div>`:''}
+      <label>PESO (KG)</label>
+      <input type="text" inputmode="decimal" id="peso" placeholder="ej: 82.5" autocomplete="off">
+      <button class="btn block save" data-act="savePeso">GUARDAR PESO</button>
+    </div></div>
+
+    <h2>▶ DATOS</h2>
+    <div class="card"><div class="bd">
+      <p class="tip" style="margin-top:0">Exportá tus registros y mandalos para revisar el progreso. Se guarda un archivo .json con todas tus cargas.</p>
+      <div class="row" style="margin-top:14px">
+        <button class="btn block" data-act="share">ENVIAR DATOS</button>
+      </div>
+      <div class="row" style="margin-top:16px">
+        <button class="btn white sm" data-act="download">DESCARGAR</button>
+        <button class="btn white sm" data-act="copy">COPIAR</button>
+        <button class="btn white sm" data-act="import">RESTAURAR</button>
+      </div>
+    </div></div>
+    <p class="mini">Tus datos se guardan solo en este teléfono. Hacé una exportación de vez en cuando como respaldo.</p>`;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+let tt;
+function toast(html){
+  const t=document.getElementById('toast'); t.innerHTML=html; t.classList.add('show');
+  clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('show'),2200);
+}
+function buzz(){ try{ navigator.vibrate && navigator.vibrate(30); }catch(e){} }
+
+function saveEx(btn){
+  const k=btn.dataset.key, id=btn.dataset.id, d=btn.dataset.day, fin=btn.dataset.fin==='1';
+  const r=(document.getElementById(id+'r').value||'').trim();
+  const n=(document.getElementById(id+'n').value||'').trim();
+  const kgEl=document.getElementById(id+'k');
+  const kgRaw=kgEl?(kgEl.value||'').trim().replace(',','.'):'';
+  if(!fin && !kgRaw && !r){ toast('COMPLETÁ KG<br>O REPS'); return; }
+  if(fin && !r){ toast('ANOTÁ TU<br>RESULTADO'); return; }
+  let v;
+  if(fin) v=r; else if(kgRaw&&r) v=kgRaw+'kg x '+r; else if(kgRaw) v=kgRaw+'kg'; else v=r;
+  if(n) v+=' ('+n+')';
+  const entry={d:today(), v, r:r||null, n:n||null, kg:kgRaw?parseFloat(kgRaw):null};
+  if(entry.kg!=null && isNaN(entry.kg)){ toast('KG INVÁLIDO'); return; }
+  const prevMax = Math.max(0,...hist(k).filter(e=>e.d!==today()).map(e=>kgOf(e.v)||0));
+  const list = (S.cargas[k]=S.cargas[k]||[]).filter(e=>e.d!==today());
+  list.push(entry); S.cargas[k]=list; save(); buzz();
+  const isPR = !fin && entry.kg!=null && prevMax>0 && entry.kg>prevMax;
+  const y=window.scrollY;
+  render(); window.scrollTo(0,y);
+  toast(isPR?'★ NEW RECORD! ★<br>'+entry.kg+' KG':'+1 PUNTO<br>GUARDADO');
+}
+
+function savePeso(){
+  const el=document.getElementById('peso'); const v=parseFloat((el.value||'').replace(',','.'));
+  if(!v||v<20||v>300){ toast('PESO INVÁLIDO'); return; }
+  S.peso=(S.peso||[]).filter(w=>w.d!==today()); S.peso.push({d:today(),v}); save(); render(); toast('PESO GUARDADO<br>'+v+' KG');
+}
+
+function exportObj(){ return {exportado:todayLong(), peso:S.peso||[], cargas:S.cargas}; }
+function exportName(){ return 'iron-arcade-datos-'+isoDate()+'.json'; }
+function download(){
+  const blob=new Blob([JSON.stringify(exportObj(),null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=exportName();
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  toast('ARCHIVO<br>DESCARGADO');
+}
+async function share(){
+  const json=JSON.stringify(exportObj(),null,2);
+  try{
+    const file=new File([json],exportName(),{type:'application/json'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file],title:'Datos Iron Arcade'}); return;
+    }
+  }catch(e){ if(e&&e.name==='AbortError') return; }
+  download();
+}
+async function copy(){
+  try{ await navigator.clipboard.writeText(JSON.stringify(exportObj(),null,2)); toast('COPIADO AL<br>PORTAPAPELES'); }
+  catch(e){ toast('NO SE PUDO COPIAR<br>USÁ DESCARGAR'); }
+}
+function doImport(file){
+  const fr=new FileReader();
+  fr.onload=()=>{
+    try{
+      const o=JSON.parse(fr.result);
+      if(!o||typeof o.cargas!=='object') throw 0;
+      if(!confirm('Esto reemplaza los datos actuales de este teléfono. ¿Continuar?')) return;
+      S={peso:Array.isArray(o.peso)?o.peso:[], cargas:o.cargas}; save(); render(); toast('DATOS<br>RESTAURADOS');
+    }catch(e){ toast('ARCHIVO<br>NO VÁLIDO'); }
+  };
+  fr.readAsText(file);
+}
+
+/* =========================================================
+   EVENTS
+   ========================================================= */
+document.addEventListener('click',e=>{
+  const nav=e.target.closest('[data-nav]');
+  if(nav){ view={name:nav.dataset.nav,day:null}; render(); window.scrollTo(0,0); return; }
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const a=b.dataset.act;
+  if(a==='openDay'){ view={name:'day',day:b.dataset.day}; render(); window.scrollTo(0,0); }
+  else if(a==='home'){ view={name:'home',day:null}; render(); window.scrollTo(0,0); }
+  else if(a==='saveEx') saveEx(b);
+  else if(a==='savePeso') savePeso();
+  else if(a==='share') share();
+  else if(a==='download') download();
+  else if(a==='copy') copy();
+  else if(a==='import') document.getElementById('importFile').click();
+});
+document.getElementById('importFile').addEventListener('change',e=>{ if(e.target.files[0]) doImport(e.target.files[0]); e.target.value=''; });
+
+render();
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
+</script>
+</body>
+</html>
